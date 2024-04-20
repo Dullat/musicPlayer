@@ -1,3 +1,3 @@
 # musicPlayer
 a music player
-[here](https://github.com/dullat/musicPlayer/)
+[here](https://dullat.github.io/musicPlayer/)
