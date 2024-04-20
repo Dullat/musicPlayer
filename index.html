@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <p>Playing Now</p>
+            <h1 style="font-weight: 600;"><span id="song-title">title</span></h1>
+            <small id="song-artist">-idol-</small>
+        </header>
+
+        <div class="banner">
+
+        </div>
+
+        <div>
+            <audio id="audioPlayer" controls style="display: none;" src=""></audio>
+            <progress id="progress" value="23" max="100"></progress>
+            <div class="timer">
+                <small class="remaining-duration">0:00</small>
+                <small class="total-duration">3:00</small>
+            </div>
+            <div class="controls">
+                <button class="repeat">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>repeat</title>
+                        <path
+                            d="M20,7.5L16.46,11.04L15.76,10.33L18.09,8H6V12H5V7H18.09L15.76,4.67L16.46,3.96L20,7.5M17,17V13H18V18H4.91L7.24,20.33L6.54,21.04L3,17.5L6.54,13.96L7.24,14.67L4.91,17H17Z" />
+                    </svg>
+                </button>
+                <button class="skip-previous">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>skip-previous</title>
+                        <path d="M7.6,12.5L18,6V19L17,18.38L7.6,12.5M9.5,12.5L17,17.2V7.8L9.5,12.5M5,6H6V19H5V6Z" />
+                    </svg>
+                </button>
+                <button class="play">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>play</title>
+                        <path d="M18.4,12.5L9,18.38L8,19V6L18.4,12.5M16.5,12.5L9,7.8V17.2L16.5,12.5Z" />
+                    </svg>
+                </button>
+                <button class="skip-next">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>skip-next</title>
+                        <path d="M15.4,12.5L5,6V19L6,18.38L15.4,12.5M13.5,12.5L6,17.2V7.8L13.5,12.5M18,6H17V19H18V6Z" />
+                    </svg>
+                </button>
+                <button class="shuffle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>shuffle</title>
+                        <path
+                            d="M13,5H19V11H18V6.71L4.71,20L4,19.29L17.29,6H13V5M13,19H17.29L12.71,14.41L13.41,13.71L18,18.29V14H19V20H13V19M4,5.71L4.71,5L10.29,10.59L9.59,11.29L4,5.71Z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="list-container">
+            <div id="playlist">
+
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
