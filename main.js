@@ -3,7 +3,7 @@ const titleElement = document.getElementById("song-title");
 const artistElement = document.getElementById("song-artist");
 const remainingDurationElement = document.querySelector(".remaining-duration");
 const totalDurationElement = document.querySelector(".total-duration");
-const repeatBtn = document.querySelector(".repeat");
+const loopBtn = document.querySelector(".repeat");
 const prevBtn = document.querySelector(".skip-previous");
 const nextBtn = document.querySelector(".skip-next");
 const playBtn = document.querySelector(".play");
@@ -16,14 +16,12 @@ let activeSong = 0;
 let songObj = undefined;
 let loop = false;
 let currentSongLink = undefined;
-
+const audio = new Audio();
 // obj
 
-function createSongObject(title, artist, duration, src) {
+function createSongObject(img, src) {
   return {
-    title: title,
-    artist: artist,
-    duration: duration,
+    img: img,
     src: src,
   };
 }
@@ -60,14 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
             playlist.appendChild(listItem);
 
             //calling
-            playListArray.push(
-              createSongObject(
-                audio.title,
-                audio.artist,
-                formatTime(audio.duration),
-                audio.src
-              )
-            );
+            playListArray.push(createSongObject(songData.img, audio.src));
             console.log(playListArray);
           });
         });
@@ -91,6 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 1000);
 });
 
+// btn clicks
+
 playBtn.addEventListener("click", () => {
   if (audioPlayer.paused) {
     audioPlayer.play();
@@ -112,10 +105,23 @@ prevBtn.addEventListener("click", () => {
   updateSong();
 });
 
+loopBtn.addEventListener("click", () => {
+  if (loop === false) {
+    audioPlayer.loop = true;
+    loop = true;
+  } else {
+    loop = false;
+    audioPlayer.loop = false;
+  }
+});
+
+// update
+
 function updateSong() {
   console.log(activeSong);
   audioPlayer.src = currentSongLink;
   audioPlayer.play();
+  loadMetaData();
 }
 
 audioPlayer.addEventListener("ended", function () {
@@ -147,3 +153,19 @@ audioPlayer.addEventListener("timeupdate", function () {
   const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
   progressBar.value = progress;
 });
+
+// gui like images title singer bla bla
+function loadMetaData() {
+  audio.src = currentSongLink;
+  audio.addEventListener("loadedmetadata", () => {
+    titleElement.textContent = audio.title || "No Title";
+    artistElement.textContent = audio.artist || "Unknown Author";
+    let img = undefined;
+    playListArray.forEach((element) => {
+      if (element.src === currentSongLink) {
+        img = element.img;
+      }
+    });
+    document.querySelector(".banner").style.backgroundImage = `url(${img})`;
+  });
+}
