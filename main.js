@@ -1,17 +1,21 @@
 const audioPlayer = document.getElementById("audioPlayer");
 const titleElement = document.getElementById("song-title");
 const artistElement = document.getElementById("song-artist");
-const remainingDurationElement = document.getElementById("remaining-duration");
-const totalDurationElement = document.getElementById("total-duration");
+const remainingDurationElement = document.querySelector(".remaining-duration");
+const totalDurationElement = document.querySelector(".total-duration");
 const repeatBtn = document.querySelector(".repeat");
 const prevBtn = document.querySelector(".skip-previous");
 const nextBtn = document.querySelector(".skip-next");
 const playBtn = document.querySelector(".play");
 const shuffleBtn = document.querySelector(".shuffle");
 const playlist = document.getElementById("playlist");
+const progressBar = document.getElementById("progress");
 let playListArray = [];
+let listItems = undefined;
 let activeSong = 0;
 let songObj = undefined;
+let loop = false;
+let currentSongLink = undefined;
 
 // obj
 
@@ -73,6 +77,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   loadSongsFromJSON();
+
+  setTimeout(function () {
+    const listItems = document.querySelectorAll("#playlist li");
+    console.log(listItems);
+    listItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        currentSongLink = item.getAttribute("data-src");
+        updateSong();
+        console.log(currentSongLink);
+      });
+    });
+  }, 1000);
 });
 
 playBtn.addEventListener("click", () => {
@@ -82,29 +98,52 @@ playBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-  if (activeSong < playListArray.length - 1) {
-    activeSong++;
-    songObj = playListArray[activeSong];
-  } else {
-    activeSong = 0;
-    songObj = playListArray[activeSong];
-  }
-  updateSong();
+  playNextSong();
 });
 
 prevBtn.addEventListener("click", () => {
   if (activeSong > 0) {
     activeSong--;
-    songObj = playListArray[activeSong];
+    currentSongLink = playListArray[activeSong].src;
   } else {
     activeSong = 0;
-    songObj = playListArray[activeSong];
+    currentSongLink = playListArray[activeSong].src;
   }
   updateSong();
 });
 
 function updateSong() {
   console.log(activeSong);
-  audioPlayer.src = songObj.src;
+  audioPlayer.src = currentSongLink;
   audioPlayer.play();
 }
+
+audioPlayer.addEventListener("ended", function () {
+  if (loop === false) {
+    playNextSong();
+  }
+});
+
+function playNextSong() {
+  if (activeSong < playListArray.length - 1) {
+    activeSong++;
+    currentSongLink = playListArray[activeSong].src;
+  } else {
+    activeSong = 0;
+    currentSongLink = playListArray[activeSong].src;
+  }
+  updateSong();
+}
+
+// progress bar
+
+audioPlayer.addEventListener("timeupdate", function () {
+  remainingDurationElement.textContent = formatTime(
+    Math.floor(audioPlayer.duration - audioPlayer.currentTime)
+  );
+  totalDurationElement.textContent = formatTime(
+    Math.floor(audioPlayer.duration)
+  );
+  const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
+  progressBar.value = progress;
+});
