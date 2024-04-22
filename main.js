@@ -15,12 +15,14 @@ let listItems = undefined;
 let activeSong = 0;
 let songObj = undefined;
 let loop = false;
-let currentSongLink = undefined;
+let shuffleStatus = false;
 const audio = new Audio();
-// obj
 
-function createSongObject(img, src) {
+// obj
+function createSongObject(title, artist, img, src) {
   return {
+    title: title,
+    artist: artist,
     img: img,
     src: src,
   };
@@ -34,7 +36,6 @@ function formatTime(seconds) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Function to load songs from JSON
   function loadSongsFromJSON() {
     fetch("songs.json")
       .then((response) => response.json())
@@ -43,14 +44,13 @@ document.addEventListener("DOMContentLoaded", function () {
         songs.forEach((songData) => {
           const audio = new Audio();
           audio.src = songData.src;
-          if (fsong === undefined) {
-            fsong = audio.src;
-          }
           const listItem = document.createElement("li");
           const songBar = document.createElement("div");
           songBar.classList.add("song-bar");
           audio.addEventListener("loadedmetadata", function () {
-            const title = audio.title || "Unknown Title";
+            const title = songData.title || "Unknown Title";
+            const artist = songData.artist || "Unknown Artist";
+            const img = songData.img;
             const dur = formatTime(audio.duration);
             listItem.setAttribute("data-src", audio.src);
             songBar.innerHTML = `<p>${title}</p><small>${dur}</small>`;
@@ -58,11 +58,18 @@ document.addEventListener("DOMContentLoaded", function () {
             playlist.appendChild(listItem);
 
             //calling
-            playListArray.push(createSongObject(songData.img, audio.src));
+            playListArray.push(
+              createSongObject(title, artist, songData.img, audio.src)
+            );
             console.log(playListArray);
           });
+          if (fsong === undefined) {
+            fsong = audio.src;
+            songObj = songData;
+          }
         });
-        audioPlayer.src = fsong;
+        updateSong(false);
+        // audioPlayer.src = songObj.src;
       })
       .catch((error) => console.error("Error loading songs:", error));
   }
@@ -74,20 +81,26 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log(listItems);
     listItems.forEach((item) => {
       item.addEventListener("click", () => {
-        currentSongLink = item.getAttribute("data-src");
+        playListArray.forEach((element) => {
+          if (item.getAttribute("data-src") === element.src) {
+            songObj = element;
+          }
+        });
         updateSong();
-        console.log(currentSongLink);
       });
     });
   }, 1000);
 });
 
 // btn clicks
-
 playBtn.addEventListener("click", () => {
   if (audioPlayer.paused) {
     audioPlayer.play();
-  } else audioPlayer.pause();
+    playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>pause</title><path d="M13,19V6H17V19H13M6,19V6H10V19H6M7,7V18H9V7H7M14,7V18H16V7H14Z" /></svg>`;
+  } else {
+    audioPlayer.pause();
+    playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>play</title><path d="M18.4,12.5L9,18.38L8,19V6L18.4,12.5M16.5,12.5L9,7.8V17.2L16.5,12.5Z" /></svg>`;
+  }
 });
 
 nextBtn.addEventListener("click", () => {
@@ -97,10 +110,10 @@ nextBtn.addEventListener("click", () => {
 prevBtn.addEventListener("click", () => {
   if (activeSong > 0) {
     activeSong--;
-    currentSongLink = playListArray[activeSong].src;
+    songObj = playListArray[activeSong];
   } else {
     activeSong = 0;
-    currentSongLink = playListArray[activeSong].src;
+    songObj = playListArray[activeSong];
   }
   updateSong();
 });
@@ -113,14 +126,26 @@ loopBtn.addEventListener("click", () => {
     loop = false;
     audioPlayer.loop = false;
   }
+  loopBtn.classList.toggle("active");
+});
+
+shuffleBtn.addEventListener("click", () => {
+  if (shuffleStatus === false) {
+    shuffleStatus = true;
+    console.log("sfl on");
+  } else {
+    shuffleStatus = false;
+  }
+  shuffleBtn.classList.toggle("active");
 });
 
 // update
-
-function updateSong() {
+function updateSong(play = true) {
   console.log(activeSong);
-  audioPlayer.src = currentSongLink;
-  audioPlayer.play();
+  audioPlayer.src = songObj.src;
+  if (play === true) {
+    audioPlayer.play();
+  }
   loadMetaData();
 }
 
@@ -132,40 +157,75 @@ audioPlayer.addEventListener("ended", function () {
 
 function playNextSong() {
   if (activeSong < playListArray.length - 1) {
-    activeSong++;
-    currentSongLink = playListArray[activeSong].src;
+    if (shuffleStatus === true) {
+      activeSong = Math.floor(Math.random() * playListArray.length);
+    } else activeSong++;
+    songObj = playListArray[activeSong];
   } else {
     activeSong = 0;
-    currentSongLink = playListArray[activeSong].src;
+    songObj = playListArray[activeSong];
   }
   updateSong();
 }
 
-// progress bar
-
+// progress bar and time updating
 audioPlayer.addEventListener("timeupdate", function () {
-  remainingDurationElement.textContent = formatTime(
-    Math.floor(audioPlayer.duration - audioPlayer.currentTime)
-  );
-  totalDurationElement.textContent = formatTime(
-    Math.floor(audioPlayer.duration)
-  );
-  const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
-  progressBar.value = progress;
+  if (!isNaN(audioPlayer.duration) && !isNaN(audioPlayer.currentTime)) {
+    remainingDurationElement.textContent = formatTime(
+      Math.max(0, Math.floor(audioPlayer.duration - audioPlayer.currentTime))
+    );
+    totalDurationElement.textContent = formatTime(
+      Math.floor(audioPlayer.duration)
+    );
+    const progress =
+      (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
+    progressBar.value = progress;
+  }
 });
 
-// gui like images title singer bla bla
+// gui like images title singer
 function loadMetaData() {
-  audio.src = currentSongLink;
-  audio.addEventListener("loadedmetadata", () => {
-    titleElement.textContent = audio.title || "No Title";
-    artistElement.textContent = audio.artist || "Unknown Author";
-    let img = undefined;
-    playListArray.forEach((element) => {
-      if (element.src === currentSongLink) {
-        img = element.img;
-      }
-    });
-    document.querySelector(".banner").style.backgroundImage = `url(${img})`;
-  });
+  titleElement.textContent = songObj.title || "No Title";
+  artistElement.textContent = songObj.artist || "Unknown Author";
+  document.querySelector(
+    ".banner"
+  ).style.backgroundImage = `url(${songObj.img})`;
 }
+
+// bar Click and Drag
+function handleMouseDown(event) {
+  // claculate mouse rlative to bar
+  const rect = progressBar.getBoundingClientRect();
+  const offsetX = event.clientX - rect.left;
+
+  // % of progress bar clicked
+  const progressBarWidth = progressBar.offsetWidth;
+  const progressPercentage = (offsetX / progressBarWidth) * 100;
+
+  // update audioPlayer
+  const duration = audioPlayer.duration;
+  audioPlayer.currentTime = (duration * progressPercentage) / 100;
+
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+}
+
+function handleMouseMove(event) {
+  const rect = progressBar.getBoundingClientRect();
+  const offsetX = event.clientX - rect.left;
+
+  //dragged by mouse, position
+  const progressBarWidth = progressBar.offsetWidth;
+  const progressPercentage = (offsetX / progressBarWidth) * 100;
+
+  // update audioPlayer
+  const duration = audioPlayer.duration;
+  audioPlayer.currentTime = (duration * progressPercentage) / 100;
+}
+
+function handleMouseUp() {
+  document.removeEventListener("mousemove", handleMouseMove);
+  document.removeEventListener("mouseup", handleMouseUp);
+}
+
+progressBar.addEventListener("mousedown", handleMouseDown);
