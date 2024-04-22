@@ -36,11 +36,11 @@ function formatTime(seconds) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  let fsong = undefined;
   function loadSongsFromJSON() {
     fetch("songs.json")
       .then((response) => response.json())
       .then((songs) => {
-        let fsong = undefined;
         songs.forEach((songData) => {
           const audio = new Audio();
           audio.src = songData.src;
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(playListArray);
           });
           if (fsong === undefined) {
-            fsong = audio.src;
+            fsong = 12;
             songObj = songData;
           }
         });
@@ -158,8 +158,14 @@ audioPlayer.addEventListener("ended", function () {
 function playNextSong() {
   if (activeSong < playListArray.length - 1) {
     if (shuffleStatus === true) {
-      activeSong = Math.floor(Math.random() * playListArray.length);
-    } else activeSong++;
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * playListArray.length);
+      } while (randomIndex === activeSong);
+      activeSong = randomIndex;
+    } else {
+      activeSong++;
+    }
     songObj = playListArray[activeSong];
   } else {
     activeSong = 0;
