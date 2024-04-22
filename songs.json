@@ -1,14 +1,27 @@
 [
   {
-    "img": "./images/profile-1.jpg",
-    "src": "./songs/SUICIDAL-IDOL - ecstacy (slowed).mp3"
-  },
-  {
-    "img": "./images/profile-2.jpg",
+    "title": "My Ordinary Life",
+    "artist": "The Living Tombstone",
+    "img": "./images/ordinary.png",
     "src": "./songs/The Living Tombstone - My Ordinary Life (Lyrics Vietsub).mp3"
   },
   {
-    "img": "./images/profile-3.jpg",
-    "src": "./songs/The Living Tombstone - My Ordinary Life (Lyrics Vietsub).mp3"
+    "title": "The Less I Know",
+    "artist": "Tame Impala",
+    "img": "./images/lessiknow.png",
+    "src": "./songs/The Less I Know The Better.m4a"
+  },
+  {
+    "title": "Ecstacy",
+    "artist": "SUICIDAL-IDOL",
+    "img": "./images/esy.png",
+    "src": "./songs/Ecstacy.m4a"
+  },
+  {
+    "title": "Let it Happen",
+    "artist": "Tame Impala",
+    "img": "./images/letithappen.png",
+    "src": "./songs/Let It Happen.m4a"
   }
 ]
+
